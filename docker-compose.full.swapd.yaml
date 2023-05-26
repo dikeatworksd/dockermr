@@ -1,0 +1,17 @@
+version: "3.7"
+
+x-log-config: &log-config
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "20"
+
+services: 
+  swapd:
+    container_name: swapd
+    build:
+      context: dockerfiles
+      dockerfile: swapd_compile
+    restart: unless-stopped
+    <<: *log-config

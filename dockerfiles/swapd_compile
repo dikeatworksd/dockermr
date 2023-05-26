@@ -1,0 +1,35 @@
+FROM ubuntu:22.04 as og
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV GO_VERSION 1.20.3
+ARG threads
+
+WORKDIR /opt/swapd
+
+RUN apt-get update && apt-get install -y \
+    build-essential cmake pkg-config libboost-all-dev \
+    libssl-dev libzmq3-dev libunbound-dev libsodium-dev libpgm-dev git \
+    wget
+
+RUN wget "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
+RUN rm -rf /usr/local/go && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
+RUN echo "export PATH=$PATH:/usr/local/go/bin" >> .profile
+ENV PATH $PATH:/usr/local/go/bin
+
+RUN git clone https://github.com/athanorlabs/atomic-swap --depth=1 
+WORKDIR /opt/swapd/atomic-swap
+RUN make build -j2
+
+
+
+FROM ubuntu:22.04
+
+WORKDIR /data
+
+COPY --from=og /opt/swapd/atomic-swap/bin/swapd /bin/swapd
+COPY --from=og /opt/swapd/atomic-swap/bin/swapcli /bin/swapcli
+
+#EXPOSE 18080
+#EXPOSE 18081
+#EXPOSE 18082
+#EXPOSE 18083
