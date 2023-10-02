@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.8"
 
 x-log-config: &log-config
   logging:
@@ -11,7 +11,19 @@ services:
   swapd:
     container_name: swapd
     build:
-      context: dockerfiles
+      context: dockerfiles/swapd
       dockerfile: swapd_compile
     restart: unless-stopped
+    volumes:
+      - ${SWAPD_DIR:-./swapd}:/data
+    environment:
+      SWAPD_ENV: "${SWAPD_ENV:-stagenet}"
+      SWAPD_ETH_ENDPOINT: "${SWAPD_ETH_ENDPOINT:-https://rpc.sepolia.org/}"
+      SWAPD_MONEROD_HOST: 192.168.1.73
+      SWAPD_MONEROD_PORT: 18081
+      SWAPD_LIBP2P_PORT: 9900
+      SWAPD_RPC_PORT: 5000
+      SWAPD_LOG_LEVEL: debug
+    ports:
+      - 9900:9900
     <<: *log-config
