@@ -1,0 +1,42 @@
+FROM ubuntu:22.04
+
+ENV HAVEN_HASH 9032a97ec2bc82a40efd878cd8a78bee114b875dd457d298b98d7c1371840ce9
+ENV HAVEN_DL_URL https://docs.havenprotocol.org/binaries/v3.3.1/x86_64-unknown-linux-gnu.tar.gz
+ENV HAVEN_DL_FILE haven.tar.gz
+ENV HAVEN_SUMS_FILE sha256sums
+
+WORKDIR /opt/haven
+
+
+# Update system and install dependencies
+# Download Haven binaries from havenprotocol.org
+# Confirm hashes match
+# Install daemon binary
+# Clean up
+
+RUN apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y tar gzip wget
+
+RUN wget -qO ${HAVEN_DL_FILE} ${HAVEN_DL_URL} \
+  && echo "${HAVEN_HASH}  ${HAVEN_DL_FILE}" > ${HAVEN_SUMS_FILE} \
+  && sha256sum -c ${HAVEN_SUMS_FILE}; \
+  if [ "$?" -eq 0 ]; \
+  then \
+    echo -e "[+] Hashes match - proceeding with container build"; \
+  else \
+    echo -e "[!] Hashes do not match - exiting"; \
+    exit 5; \
+  fi \
+  && mkdir ./tmp \
+  && tar xzf ${HAVEN_DL_FILE} -C ./tmp \
+  && mv ./tmp/* /usr/local/bin/ \
+  && rm -rf ./tmp ${HAVEN_SUMS_FILE} ${HAVEN_DL_FILE}
+
+WORKDIR /data
+
+EXPOSE 17750
+EXPOSE 17751
+EXPOSE 17752
+EXPOSE 17753
+EXPOSE 17754
