@@ -24,7 +24,6 @@ COPY --from=builder /go/bin/ /usr/local/bin/
 COPY ./docker-entrypoint.sh /usr/local/bin/
 RUN ["chmod", "+x", "/usr/local/bin/docker-entrypoint.sh"]
 
-
 VOLUME /data
 
 # USER_UID and USER_GID are defined as ARGs so that, if desired, you can
