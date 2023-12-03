@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.8"
 
 volumes:
   grafana:
@@ -56,21 +56,19 @@ services:
     <<: *log-config
   exporter:
     container_name: monerod_exporter
-    build:
-      context: dockerfiles
-      dockerfile: monerod_exporter
+    image: lalanza808/monerod_exporter:latest
     restart: unless-stopped
     ports:
       - 127.0.0.1:9000:9000
     command:
-      - --monero-addr=http://monerod:${UNRESTRICTED_PORT:-18083}
+      - --monero-addr=http://monerod:${UNRESTRICTED_PORT:-18084}
     <<: *log-config
   monerod:
     container_name: monerod
     build:
       context: dockerfiles
       dockerfile: monero_nocompile
-      #network: host
+      network: host
     restart: unless-stopped
     volumes:
       - ${DATA_DIR:-./data}:/data

@@ -1,0 +1,28 @@
+version: "3.8"
+
+x-log-config: &log-config
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "20"
+
+services: 
+  monerodstg:
+    container_name: monerodstg
+    build:
+      context: dockerfiles
+      dockerfile: monerostg_nocompile
+      network: host
+    restart: unless-stopped
+    volumes:
+      - ${DATA_DIR:-./data}:/data
+    ports:
+      - ${MONERO_STAGENET_P2P_PORT:-38080}:38080                    # p2p
+      - ${MONERO_STAGENET_RESTRICTED_PORT:-38081}:8081             # restricted rpc
+      - 127.0.0.1:${MONERO_STAGENET_ZMQ_PORT:-38082}:38082          # zmq
+      - 127.0.0.1:${MONERO_STAGENET_UNRESTRICTED_PORT:-38084}:38084 # unrestricted rpc
+      - 127.0.0.1:${MONERO_STAGENET_ZMQ_PUB_PORT:-38083}:38083      # ZMQ PUB Port
+    command:
+      monerod --stagenet --zmq-pub tcp://0.0.0.0:38083 --bootstrap-daemon-address=monero-stagenet.exan.tech:38081 --add-priority-node=monero-stagenet.exan.tech:38081 --prune-blockchain --sync-pruned-blocks --p2p-use-ipv6 --data-dir=/data --p2p-bind-ip=0.0.0.0 --p2p-bind-port=38080 --rpc-restricted-bind-ip=0.0.0.0 --rpc-restricted-bind-port=38081 --rpc-bind-ip=0.0.0.0 --rpc-bind-port=38084 --non-interactive --confirm-external-bind --public-node --log-level=0 --enable-dns-blocklist --disable-dns-checkpoints --rpc-ssl=disabled --out-peers 64 --in-peers 32
+    <<: *log-config

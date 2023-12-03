@@ -1,0 +1,41 @@
+FROM ubuntu:22.04 as og
+
+ENV DEBIAN_FRONTEND noninteractive
+ARG threads
+
+WORKDIR /opt/zephyr
+
+#RUN apt-get update && apt-get install -y \
+#    build-essential cmake pkg-config libboost-all-dev \
+#    libssl-dev libzmq3-dev libunbound-dev libsodium-dev libpgm-dev git
+
+RUN apt update && apt install -y \
+    build-essential cmake pkg-config libssl-dev libzmq3-dev \
+    libunbound-dev libsodium-dev libunwind8-dev liblzma-dev \ 
+    libreadline6-dev libexpat1-dev libpgm-dev qttools5-dev-tools \
+    libhidapi-dev libusb-1.0-0-dev libprotobuf-dev protobuf-compiler \
+    libudev-dev libboost-chrono-dev libboost-date-time-dev \ 
+    libboost-filesystem-dev libboost-locale-dev libboost-program-options-dev \
+    libboost-regex-dev libboost-serialization-dev libboost-system-dev libboost-thread-dev \
+    python3 ccache doxygen graphviz git
+
+RUN git clone https://github.com/ZephyrProtocol/Zephyr --branch=v1.0.4 --depth=1 .
+
+RUN git submodule update --init --force
+
+RUN make -j $(($(nproc) + 1))
+
+FROM ubuntu:22.04
+
+WORKDIR /data
+
+COPY --from=og /usr/lib/x86_64-linux-gnu/ /usr/lib/x86_64-linux-gnu/
+COPY --from=og /opt/zephyr/build/Linux/_no_branch_/release/bin/zephyrd /bin/zephyrd
+COPY --from=og /opt/zephyr/build/Linux/_no_branch_/release/bin/zephyr-wallet-cli /bin/zephyr-wallet-cli
+COPY --from=og /opt/zephyr/build/Linux/_no_branch_/release/bin/zephyr-wallet-rpc /bin/zephyr-wallet-rpc
+
+EXPOSE 27766
+EXPOSE 27767
+EXPOSE 27768
+EXPOSE 27769
+EXPOSE 27770

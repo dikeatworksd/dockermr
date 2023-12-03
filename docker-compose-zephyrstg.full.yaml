@@ -1,0 +1,28 @@
+version: "3.8"
+
+x-log-config: &log-config
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "20"
+
+services: 
+  zephyrd_stagenet:
+    container_name: zephyrd_stagenet
+    build:
+      context: dockerfiles
+      dockerfile: zephyr_stagenet_compile
+      network: host
+    restart: unless-stopped
+    volumes:
+      - ${ZEPHYR_DIR:-./data}:/data
+    ports:
+      - ${ZEPHYR_STAGENET_P2P_PORT:-37766}:37766                    # p2p
+      - ${ZEPHYR_STAGENET_RESTRICTED_PORT:-37767}:37767             # restricted rpc
+      - 127.0.0.1:${ZEPHYR_STAGENET_ZMQ_PORT:-37768}:37768          # zmq
+      - 127.0.0.1:${ZEPHYR_STAGENET_UNRESTRICTED_PORT:-37769}:37769 # unrestricted rpc
+      - 127.0.0.1:${ZEPHYR_STAGENET_ZMQ_PUB_PORT:-37770}:37770      # ZMQ PUB Port
+    command:
+      zephyrd --stagenet --data-dir=/data --p2p-bind-ip=0.0.0.0 --p2p-bind-port=37766 --restricted-rpc --rpc-restricted-bind-ip=0.0.0.0 --rpc-restricted-bind-port=37767 --zmq-rpc-bind-ip=0.0.0.0 --zmq-rpc-bind-port=37768 --rpc-bind-ip=0.0.0.0 --rpc-bind-port=37769 --non-interactive --confirm-external-bind --public-node --log-level=0 --enable-dns-blocklist --rpc-ssl=disabled --zmq-pub tcp://0.0.0.0:37770
+    <<: *log-config
