@@ -69,7 +69,6 @@ services:
       context: dockerfiles
       dockerfile: monero_nocompile
       network: host
-    restart: unless-stopped
     volumes:
       - ${DATA_DIR:-./data}:/data
     ports:
