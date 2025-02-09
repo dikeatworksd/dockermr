@@ -1,0 +1,25 @@
+version: "3.8"
+
+x-log-config: &log-config
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "20"
+
+services: 
+  ip2d:
+    container_name: ip2d
+    build:
+      context: dockerfiles/ip2d
+      dockerfile: ip2d_compile
+      network: host
+    ports:
+      - 7070:7070                    # WebConsole
+      - 4444:4444                    # http proxy
+      - 4447:4447                    # socks proxy
+      - 7656:7656                              # sams bridge udp
+#      - 2827:2827                              # BOB command channel
+#      - 7654:7654                              # i2cp proto
+#      - 7650:7650                              # i2p control
+    <<: *log-config

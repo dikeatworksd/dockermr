@@ -20,7 +20,7 @@ services:
     ports:
       - 3333:3333
       - 37888:37888
-    command: --mini --wallet "${WALL}" --stratum "0.0.0.0:3333" --p2p "0.0.0.0:37888" --loglevel "1" --host "monerod" --rpc-port 18081 --zmq-port 18083 --host monerod --addpeers node.portemonero.com:37888 --start-mining 1
+    command: --mini --wallet "${WALL}" --stratum "0.0.0.0:3333" --p2p "0.0.0.0:37888" --loglevel "4" --host "monerod" --rpc-port 18081 --zmq-port 18083 --host monerod --addpeers node.portemonero.com:37888 --start-mining 1
     <<: *log-config
   watchtower:
     image: containrrr/watchtower:latest
