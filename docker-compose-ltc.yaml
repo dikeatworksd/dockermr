@@ -1,0 +1,27 @@
+version: "3.8"
+
+x-log-config: &log-config
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "20"
+
+services: 
+  litecoind:
+    container_name: litecoind
+    build:
+      context: dockerfiles
+      dockerfile: litecoind_nocompile
+      network: host
+    volumes:
+      - ${LITECOIN_DIR:-./litecoin}:/litecoin
+    ports:
+      - ${LITECOIN_P2P_PORT:-9333}:9333                    # p2p
+      - 127.0.0.1:${LITECOIN_UNRESTRICTED_PORT:-9332}:9332 # unrestricted rpc
+    <<: *log-config
+
+    docker run -v litecoind-data:/home/dao/monero/litecoin/.litecoin --name=litecoind-node -d \
+     -p 9333:9333 \
+     -p 127.0.0.1:9332:9332 \
+     ghcr.io/sethforprivacy/litecoind:latest
