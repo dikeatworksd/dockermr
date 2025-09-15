@@ -16,7 +16,7 @@ services:
       - -rpcallowip=0.0.0.0/0  # Allow RPC from ElectrumX
       - -rpcbind=0.0.0.0
       - -rpcuser=litecoinrpc
-      - -rpcpassword=dBMgDFvtN5QbcmjkBREZua4R8  # Change this!
+      - -rpcpassword=${LITECOIN_RPCPW}  # Change this!
       - -server=1
       - -txindex=1  # Required for ElectrumX full transaction indexing
       - -blockfilterindex=1  # Optional, enhances client queries
@@ -35,7 +35,7 @@ services:
       dockerfile: mweb_electrum_ltc
       network: host
     environment:
-      - DAEMON_URL=http://litecoinrpc:dBMgDFvtN5QbcmjkBREZua4R8@litecoin-core:9332  # Match RPC credentials
+      - DAEMON_URL=http://litecoinrpc:${LITECOIN_RPCPW}@litecoin-core:9332  # Match RPC credentials
       - COIN=Litecoin
       - NET=mainnet
       - SERVICES=tcp://0.0.0.0:50001  #,ssl://0.0.0.0:50002  # Electrum client ports
